@@ -80,7 +80,9 @@ export class UsersRepository extends BaseRepository {
       }
 
       return await this.db.oneOrNone<IUser>(
-        `SELECT * FROM ${TABLE_NAME} WHERE id = $1`,
+        `SELECT id, email, username, full_name, 
+          avatar_url, is_active, is_verified, 
+          created_at, updated_at FROM ${TABLE_NAME} WHERE id = $1`,
         [id]
       );
     } catch (error) {

@@ -4,7 +4,7 @@ import z from 'zod';
 
 // * Schemas
 export const userSchema = z.object({
-  id: z.string().describe('uuid for the user'),
+  id: z.string().uuid().describe('uuid for the user'),
   email: z.string().email().describe('Email address of the user'),
   username: z.string().describe('Username of the user'),
   password_hash: z
@@ -44,8 +44,13 @@ export const userFilterOptionsSchema = paginationSchema.extend({
 export const createUserSchema = z.object({
   email: z.string().email(),
   username: z.string(),
-  password: z.string(), // Expect plain password from client
+  password: z.string(),
   full_name: z.string().optional(),
+});
+
+export const userLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
 });
 
 export type CreateUserDBSchema = {
@@ -62,6 +67,21 @@ export const validateCreateUser = (
 ) => {
   try {
     createUserSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request',
+    });
+  }
+};
+
+export const validateUserLogin = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    userLoginSchema.parse(req.body);
     next();
   } catch (error) {
     res.status(400).json({

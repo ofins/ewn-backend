@@ -1,3 +1,4 @@
+import { NextFunction, Request, Response } from 'express';
 import z from 'zod';
 
 export const restaurantSchema = z.object({
@@ -41,3 +42,109 @@ export const restaurantSchema = z.object({
     .optional()
     .describe('Timestamp when the restaurant was last updated'),
 });
+
+export const restaurantFilterOptionsSchema = z.object({
+  longitude: z.number().optional(),
+  latitude: z.number().optional(),
+  radius: z.number().optional(), // in kilometers
+  cuisineType: z.string().optional(),
+  priceRange: z.string().optional(),
+  minRating: z.number().min(0).max(5).optional(),
+  limit: z.number().int().min(1).max(100).optional(),
+  offset: z.number().int().min(0).optional(),
+});
+
+export const createRestaurantSchema = z.object({
+  name: z.string(),
+  address: z.string(),
+  cuisine_type: z.string(),
+  price_range: z.number().int().min(1).max(5),
+  rating: z.number().min(0).max(5),
+  longitude: z.number(),
+  latitude: z.number(),
+  open_hours: z.string().optional(),
+  contact_info: z.string().optional(),
+});
+
+export const updateRestaurantSchema = z.object({
+  id: z.number().int(),
+  data: createRestaurantSchema.partial(),
+});
+
+export const createRestaurantUserSchema = z.object({
+  user_id: z.string().uuid(),
+  restaurant_id: z.number().int(),
+  upvoted: z.boolean().optional(),
+  downvoted: z.boolean().optional(),
+  favorited: z.boolean().optional(),
+  rating: z.number().min(0).max(5).optional(),
+  comment: z.string().optional(),
+  visited_at: z.date().optional(),
+});
+
+export const validateRestaurantFilterOptionsSchema = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    restaurantFilterOptionsSchema.parse(req.query);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request',
+    });
+  }
+};
+
+export const validateCreateRestaurantSchema = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    createRestaurantSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request',
+    });
+  }
+};
+
+export const validateUpdateRestaurantSchema = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    updateRestaurantSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request',
+    });
+  }
+};
+
+export const validateCreateRestaurantUserSchema = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    createRestaurantUserSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof z.ZodError ? error.errors : 'Invalid request',
+    });
+  }
+};
+
+export type RestaurantFilterOptions = z.infer<
+  typeof restaurantFilterOptionsSchema
+>;
+export type CreateRestaurant = z.infer<typeof createRestaurantSchema>;
+export type UpdateRestaurant = z.infer<typeof updateRestaurantSchema>;
+export type CreateRestaurantUser = z.infer<typeof createRestaurantUserSchema>;

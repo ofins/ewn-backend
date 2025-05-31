@@ -1,8 +1,46 @@
 import express, { Request, Response } from 'express';
+import { validateRestaurantFilterOptionsSchema } from 'src/db/restaurants/restaurants.schema';
 import { restaurantRepository } from 'src/server';
-import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
+
+router.get(
+  '/',
+  validateRestaurantFilterOptionsSchema,
+  (req: Request, res: Response) => {
+    const {
+      longitude,
+      latitude,
+      radius,
+      cuisineType,
+      priceRange,
+      minRating,
+      limit,
+      offset,
+    } = req.query;
+
+    restaurantRepository
+      .getRestaurants({
+        longitude: parseFloat(longitude as string),
+        latitude: parseFloat(latitude as string),
+        radius: parseFloat(radius as string), // Default 5km radius
+        cuisineType: typeof cuisineType === 'string' ? cuisineType : undefined,
+        priceRange: priceRange === 'string' ? priceRange : undefined,
+        minRating: parseFloat(minRating as string),
+        limit: parseFloat(limit as string),
+        offset: parseFloat(offset as string),
+      })
+      .then((data) => {
+        res.send(data);
+      })
+      .catch((error) => {
+        console.log(`Error fetching restaurants:${error}`);
+        res.status(500).send({ error: 'Internal Server Error' });
+      });
+  }
+);
+
+export default router;
 
 /**
  * @swagger
@@ -74,7 +112,7 @@ const router = express.Router();
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Restaurant'
+ *                     $ref: '#/components/schemas/RestaurantSchema'
  *                 total:
  *                   type: integer
  *                 limit:
@@ -86,36 +124,3 @@ const router = express.Router();
  *       500:
  *         description: Internal Server Error
  */
-router.get('/', authenticateToken, (req: Request, res: Response) => {
-  const {
-    longitude,
-    latitude,
-    radius,
-    cuisineType,
-    priceRange,
-    minRating,
-    limit,
-    offset,
-  } = req.query;
-
-  restaurantRepository
-    .getRestaurants({
-      longitude: parseFloat(longitude as string),
-      latitude: parseFloat(latitude as string),
-      radius: parseFloat(radius as string), // Default 5km radius
-      cuisineType: typeof cuisineType === 'string' ? cuisineType : undefined,
-      priceRange: priceRange === 'string' ? priceRange : undefined,
-      minRating: parseFloat(minRating as string),
-      limit: parseFloat(limit as string),
-      offset: parseFloat(offset as string),
-    })
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((error) => {
-      console.log(`Error fetching restaurants:${error}`);
-      res.status(500).send({ error: 'Internal Server Error' });
-    });
-});
-
-export default router;

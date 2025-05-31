@@ -1,8 +1,20 @@
 ### Challenges
 
+### Notes
+
+For client application, use the following tech:
+
+1. SSR
+2. PWAs
+   1. Location
+   2. Notifications
+   3. Device Orientation
+
 ### 31th
 
 - Test `/users/profile` and fix minor bugs of not being able to find user
+- Update Swagger for `/feed`, `/auth`, `/restuarants`, `/users`
+- implement schema validation for `/feed` and `/restaurants`
 
 What I learned:
 

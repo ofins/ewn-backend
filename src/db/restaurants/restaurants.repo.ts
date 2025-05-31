@@ -7,12 +7,12 @@ import {
 } from 'src/config';
 import { PaginatedResponse, paginateResponse } from 'src/utils/pagination';
 import BaseRepository from '../base.repo';
+import { CreateRestaurant, UpdateRestaurant } from './restaurants.schema';
 import {
   CreateRestaurantData,
   IRestaurant,
   RestaurantFilterOptions,
   RestaurantsRepositoryConfig,
-  UpdateRestaurantData,
 } from './restaurants.type';
 import restaurantData from './seed.json';
 
@@ -259,7 +259,7 @@ export class RestaurantsRepository extends BaseRepository<RestaurantsRepositoryC
    * @param data Restaurant data
    * @returns Created restaurant
    */
-  async createRestaurant(data: CreateRestaurantData): Promise<IRestaurant> {
+  async createRestaurant(data: CreateRestaurant): Promise<IRestaurant> {
     try {
       this.validateRestaurantData(data);
 
@@ -275,7 +275,7 @@ export class RestaurantsRepository extends BaseRepository<RestaurantsRepositoryC
           data.address,
           data.cuisine_type,
           data.price_range,
-          data.rating,
+          0,
           data.longitude,
           data.latitude,
           data.open_hours || null,
@@ -296,7 +296,7 @@ export class RestaurantsRepository extends BaseRepository<RestaurantsRepositoryC
    */
   async updateRestaurant(
     id: number,
-    data: UpdateRestaurantData
+    data: UpdateRestaurant
   ): Promise<IRestaurant | null> {
     try {
       if (!Number.isInteger(id) || id <= 0) {

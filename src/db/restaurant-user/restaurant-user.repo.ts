@@ -1,5 +1,7 @@
 import BaseRepository from '../base.repo';
+import { CreateRestaurantUser } from '../restaurants/restaurants.schema';
 import restaurantUserData from './restaurant-user-seed.json';
+
 const TABLE_NAME = 'restaurant_user';
 
 export interface RestaurantUser {
@@ -85,9 +87,7 @@ export class RestaurantUserRepository extends BaseRepository {
     });
   }
 
-  async addRelationship(
-    data: CreateRestaurantUserData
-  ): Promise<RestaurantUser> {
+  async addRelationship(data: CreateRestaurantUser): Promise<RestaurantUser> {
     return this.db.one(
       `
     INSERT INTO ${TABLE_NAME} (
